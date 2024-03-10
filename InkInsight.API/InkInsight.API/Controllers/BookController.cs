@@ -29,7 +29,7 @@ namespace InkInsight.API.Controllers
         }
 
         [HttpGet("{id}")]
-        public IActionResult Get(Guid id)
+        public IActionResult GetById(Guid id)
         {
             var book = _dbContext.Books.Include(b => b.Reviews).FirstOrDefault(x => x.Id == id);
             return Ok(book);
@@ -47,7 +47,33 @@ namespace InkInsight.API.Controllers
             _dbContext.SaveChanges();
             return Ok(book);    
         }
+        [HttpPut]
+        public IActionResult Put([FromBody] BookDTO book)
+        {
+            var bk = _dbContext.Books.Find(book.Id);
 
-  
+            if(bk == null )
+                return NotFound("This book doesn't exist");
+
+            bk.Description = book.Description;
+            bk.Name = book.Name;
+            bk.Author = book.Author;
+
+            _dbContext.SaveChanges();
+            return NoContent();
+        }
+
+        [HttpDelete]
+        public IActionResult Delete(Guid id)
+        {
+            var bk = _dbContext.Books.Find(id);
+            if (bk == null)
+                return NotFound("This book doesn't exist");
+
+            _dbContext.Books.Remove(bk);
+            _dbContext.SaveChanges();
+            return NoContent();
+        }
+
     }
 }

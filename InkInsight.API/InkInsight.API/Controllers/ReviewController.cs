@@ -24,9 +24,16 @@ namespace InkInsight.API.Controllers
         [HttpGet]
         public IActionResult GetAll()
         {
-            var reviews = _dbContext.Reviews.Include(r => r.Book);
+            var reviews = _dbContext.Reviews.Include(r => r.Book).Include(r => r.User);
             
             return Ok(reviews);
+        }
+
+        [HttpGet("{id}")]
+        public IActionResult GetById(Guid id)
+        {
+            var review = _dbContext.Reviews.Include(r => r.Book).Include(r => r.User).FirstOrDefault(x => x.Id == id);
+            return Ok(review);
         }
 
         [HttpPost]
@@ -45,18 +52,19 @@ namespace InkInsight.API.Controllers
             return Ok();
         }
 
-        [HttpPut("{id}")]
-        public IActionResult Put(Guid id, Review review)
+        [HttpPut]
+        public IActionResult Put(ReviewDTO review)
         {
-            var rev = _dbContext.Reviews.SingleOrDefault(r => r.Id == id);
+            var rev = _dbContext.Reviews.SingleOrDefault(r => r.Id == review.Id);
 
             if (rev == null)
-            {
-                return NotFound();
-            }
-            _dbContext.SaveChanges();
-            rev = review;
+                return NotFound("This review doesn't exist");
             
+            rev.Text = review.Text;
+            rev.Date = review.Date;
+            rev.Rating = review.Rating;
+
+            _dbContext.SaveChanges();
             return NoContent();
         }
 
@@ -65,10 +73,8 @@ namespace InkInsight.API.Controllers
         {
             var rev = _dbContext.Reviews.Find(id);
             if (rev == null)
-            {
-                return NotFound();
-            }
-
+                return NotFound("This review doesn't exist");
+            
             _dbContext.Reviews.Remove(rev);
             _dbContext.SaveChanges();
             return NoContent();
