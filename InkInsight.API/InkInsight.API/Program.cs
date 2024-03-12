@@ -1,5 +1,7 @@
+using InkInsight.API.Configurations;
 using InkInsight.API.Mappers;
 using InkInsight.API.Persistences;
+using InkInsight.API.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,6 +17,8 @@ builder.Services.AddDbContext<InkInsightDbContext>(o => o.UseMySQL(connectionStr
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(typeof(ReviewProfile).Assembly);
+builder.Services.AddSingleton<JwtConfiguration>();
+builder.Services.AddTransient<TokenService>();
 
 var app = builder.Build();
 

@@ -45,7 +45,6 @@ namespace InkInsight.API.Controllers
             
             var review = _mapper.Map<Review>(reviewDTO);
             review.Book = book;
-
             _dbContext.Reviews.Add(review);
             _dbContext.SaveChanges();
 
