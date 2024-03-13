@@ -46,5 +46,36 @@ namespace InkInsight.API.Services
             claim.AddClaim(new Claim("content", json));
             return claim;
         }
+
+        public bool ValidateToken(string token)
+        {
+            var tokenHadler = new JwtSecurityTokenHandler();
+            var validationParameters = GetValidationParameters();
+
+            try
+            {
+                SecurityToken validatedToken;
+                tokenHadler.ValidateToken(token, validationParameters, out validatedToken);
+
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        private TokenValidationParameters GetValidationParameters()
+        {
+            return new TokenValidationParameters()
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_configuration.JwtSecret)),
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                ValidateLifetime = true,
+                ClockSkew = TimeSpan.Zero
+            };
+        }
     }
 }
