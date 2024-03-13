@@ -24,59 +24,95 @@ namespace InkInsight.API.Controllers
         [HttpGet]
         public IActionResult GetAll()
         {
-            var reviews = _dbContext.Reviews.Include(r => r.Book).Include(r => r.User);
-            
-            return Ok(reviews);
+            try
+            {
+                var reviews = _dbContext.Reviews.Include(r => r.Book).Include(r => r.User);
+                return Ok(reviews);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Internal Error");
+            }
         }
 
         [HttpGet("{id}")]
         public IActionResult GetById(Guid id)
         {
-            var review = _dbContext.Reviews.Include(r => r.Book).Include(r => r.User).FirstOrDefault(x => x.Id == id);
-            return Ok(review);
+            try
+            {
+                var review = _dbContext.Reviews.Include(r => r.Book).Include(r => r.User).FirstOrDefault(x => x.Id == id);
+                if (review == null)
+                    return BadRequest(review);
+                return Ok(review);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Internal Error");
+            }
         }
 
         [HttpPost]
         public IActionResult Post(ReviewDTO reviewDTO)
         {
-            var book = _dbContext.Books.Find(reviewDTO.BookId);
-            if (book == null)
-                return NotFound("Book not found.");
-            
-            var review = _mapper.Map<Review>(reviewDTO);
-            review.Book = book;
-            _dbContext.Reviews.Add(review);
-            _dbContext.SaveChanges();
+            try
+            {
+                var book = _dbContext.Books.Find(reviewDTO.BookId);
+                if (book == null)
+                    return NotFound("Review not found.");
 
-            return Ok();
+                var review = _mapper.Map<Review>(reviewDTO);
+                review.Book = book;
+                _dbContext.Reviews.Add(review);
+                _dbContext.SaveChanges();
+
+                return CreatedAtAction(nameof(GetById), new { id = review.Id }, review);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Internal Error");
+            }
         }
 
         [HttpPut]
         public IActionResult Put(ReviewDTO review)
         {
-            var rev = _dbContext.Reviews.SingleOrDefault(r => r.Id == review.Id);
+            try
+            {
+                var rev = _dbContext.Reviews.SingleOrDefault(r => r.Id == review.Id);
 
-            if (rev == null)
-                return NotFound("This review doesn't exist");
-            
-            rev.Text = review.Text;
-            rev.Date = review.Date;
-            rev.Rating = review.Rating;
+                if (rev == null)
+                    return NotFound("This review doesn't exist");
 
-            _dbContext.SaveChanges();
-            return NoContent();
+                rev.Text = review.Text;
+                rev.Date = review.Date;
+                rev.Rating = review.Rating;
+
+                _dbContext.SaveChanges();
+                return NoContent();
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Internal Error");
+            }
         }
 
         [HttpDelete("{id}")] // Você também deve considerar usar um identificador para a exclusão
         public IActionResult Delete(Guid id)
         {
-            var rev = _dbContext.Reviews.Find(id);
-            if (rev == null)
-                return NotFound("This review doesn't exist");
-            
-            _dbContext.Reviews.Remove(rev);
-            _dbContext.SaveChanges();
-            return NoContent();
+            try
+            {
+                var rev = _dbContext.Reviews.Find(id);
+                if (rev == null)
+                    return NotFound("This review doesn't exist");
+
+                _dbContext.Reviews.Remove(rev);
+                _dbContext.SaveChanges();
+                return NoContent();
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Internal Error");
+            }
         }
     }
 }

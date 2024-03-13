@@ -27,43 +27,78 @@ namespace InkInsight.API.Controllers
         [HttpGet]
         public IActionResult Get()
         {
-            var user = _dbContext.Users.Include(u => u.Reviews);
-            return Ok(user);
+            try
+            {
+                var user = _dbContext.Users.Include(u => u.Reviews);
+                return Ok(user);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Internal Error");
+            }
+
         }
 
         [HttpGet("{id}")]
         public IActionResult GetById(Guid id)
         {
-            var user = _dbContext.Users.Include(u => u.Reviews).FirstOrDefault(u => u.Id == id);
-            return Ok(user);
+            try
+            {
+                var user = _dbContext.Users.Include(u => u.Reviews).FirstOrDefault(u => u.Id == id);
+                return Ok(user);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Internal Error");
+            }
+
         }
 
         [HttpPost]
         public IActionResult Post(UserDTO user)
         {
-            if (user == null)
-                return BadRequest();
-            var userModel = _mapper.Map<User>(user);
-            userModel.Password = HashUtils.CreateHash(userModel.Password);
-            userModel.Id = Guid.NewGuid();
-            _dbContext.Users.Add(userModel);
-            _dbContext.SaveChanges();
-            return Ok(userModel);
+            try
+            {
+                if (user == null)
+                    return BadRequest();
+
+                var userModel = _mapper.Map<User>(user);
+                userModel.Password = HashUtils.CreateHash(userModel.Password);
+                userModel.Id = Guid.NewGuid();
+
+                _dbContext.Users.Add(userModel);
+                _dbContext.SaveChanges();
+                return CreatedAtAction(nameof(GetById), new { id = userModel.Id }, userModel);
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, "Internal Error");
+            }
+
 
         }
 
         [HttpGet("/login")]
         public IActionResult Login(string email,string password) 
         {
-            var user = _dbContext.Users.FirstOrDefault(x=> x.Email == email);
-            if (user == null) 
-                return NotFound("User don't exist");
-            if (user.Password == HashUtils.CreateHash(password))
+            try
             {
-                var token = _tokenService.GenerateToken<User>(user);
-                return Ok(token);
+                var user = _dbContext.Users.FirstOrDefault(x => x.Email == email);
+                if (user == null)
+                    return NotFound("User don't exist");
+
+                if (user.Password == HashUtils.CreateHash(password))
+                {
+                    var token = _tokenService.GenerateToken<User>(user);
+                    return Ok(token);
+                }
+                return BadRequest("Wrong password");
             }
-            return BadRequest();
+            catch (Exception)
+            {
+                return StatusCode(500, "Internal Error");
+            }
+  
         }
     }
 }
