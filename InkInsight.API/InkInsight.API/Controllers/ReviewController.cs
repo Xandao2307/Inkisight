@@ -14,11 +14,13 @@ namespace InkInsight.API.Controllers
     {
         private readonly InkInsightDbContext _dbContext;
         private readonly IMapper _mapper;
+        private readonly ILogger<ReviewController> _logger;
 
-        public ReviewController(InkInsightDbContext context, IMapper mapper)
+        public ReviewController(InkInsightDbContext context, IMapper mapper, ILogger<ReviewController> logger)
         {
             _dbContext = context;
             _mapper = mapper;
+            _logger = logger;
         }
 
         [HttpGet]

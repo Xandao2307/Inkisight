@@ -16,11 +16,13 @@ namespace InkInsight.API.Controllers
     {
         private readonly InkInsightDbContext _dbContext;
         private readonly IMapper _mapper;
+        private readonly ILogger<BookController> _logger;
 
-        public BookController(InkInsightDbContext dbContext, IMapper mapper)
+        public BookController(InkInsightDbContext dbContext, IMapper mapper, ILogger<BookController> logger)
         {
             _dbContext = dbContext;
             _mapper = mapper;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -30,8 +32,10 @@ namespace InkInsight.API.Controllers
             {
                 return Ok(_dbContext.Books.Include(b => b.Reviews));
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                _logger.LogError(e,"Error endpoint GET from BooksController, error message: ");
+
                 return StatusCode(500, "Internal Error");
             }
         }
@@ -46,8 +50,9 @@ namespace InkInsight.API.Controllers
                     return NotFound(book);
                 return Ok(book);
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                _logger.LogError(e,"Error endpoint GETBYID from BooksController, error message: ");
                 return StatusCode(500, "Internal Error");
             }
 
@@ -67,8 +72,10 @@ namespace InkInsight.API.Controllers
                 return CreatedAtAction(nameof(GetById), new { id = book.Id }, book);
 
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                _logger.LogError(e, "Error endpoint POST from BooksController, error message: ");
+
                 return StatusCode(500, "Internal Error");
             }
         }
@@ -89,8 +96,10 @@ namespace InkInsight.API.Controllers
                 _dbContext.SaveChanges();
                 return NoContent();
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                _logger.LogError(e, "Error endpoint PUT from BooksController, error message: ");
+
                 return StatusCode(500, "Internal Error");
             }
 
@@ -109,8 +118,10 @@ namespace InkInsight.API.Controllers
                 _dbContext.SaveChanges();
                 return NoContent();
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                _logger.LogError(e, "Error endpoint DELETE from BooksController, error message: ");
+
                 return StatusCode(500, "Internal Error");
             }
         }

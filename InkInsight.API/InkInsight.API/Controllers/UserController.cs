@@ -17,11 +17,14 @@ namespace InkInsight.API.Controllers
         private readonly InkInsightDbContext _dbContext;
         private readonly IMapper _mapper;
         private readonly TokenService _tokenService;
-        public UserController(InkInsightDbContext dbContext, IMapper mapper, TokenService tokenService)
+        private readonly ILogger<UserController> _logger;
+
+        public UserController(InkInsightDbContext dbContext, IMapper mapper, TokenService tokenService, ILogger<UserController> logger)
         {
             _dbContext = dbContext;
             _mapper = mapper;
             _tokenService = tokenService;
+            _logger = logger;
         }
 
         [HttpGet]
