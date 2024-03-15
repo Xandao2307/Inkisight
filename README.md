@@ -16,7 +16,7 @@ Este é um sistema de avaliação e resenha de livros desenvolvido em C# .NET. O
 - Entity Framework Core
 - AutoMapper
 - Swagger/OpenAPI
-- serilog
+- Serilog
 - MySQL
 
 ## Como Executar o Projeto
