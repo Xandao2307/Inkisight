@@ -33,6 +33,7 @@ namespace InkInsight.API.Controllers
             try
             {
                 var user = _dbContext.Users.Include(u => u.Reviews);
+
                 return Ok(user);
             }
             catch (Exception)
