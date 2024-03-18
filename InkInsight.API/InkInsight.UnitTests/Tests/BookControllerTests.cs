@@ -21,12 +21,10 @@ namespace InkInsight.UnitTests.Tests
         private readonly IMapper _mapper;
         public BookControllerTests()
         {
-            // Configurar um banco de dados em memória para testes
             _dbContextOptions = new DbContextOptionsBuilder<InkInsightDbContext>()
                 .UseInMemoryDatabase(databaseName: "TestDatabase")
                 .Options;
 
-            // Configurar um substituto para o ILogger
             _logger = Substitute.For<ILogger<BookController>>();
             var config = new MapperConfiguration(cfg =>
             {
@@ -40,14 +38,14 @@ namespace InkInsight.UnitTests.Tests
         {
             using (var context = new InkInsightDbContext(_dbContextOptions))
             {
-                var controller = new BookController(context, null, _logger);
+                var controller = new BookController(context, _mapper, _logger);
                 SeedTestData(context);
 
                 var result = controller.Get();
 
                 var okResult = Assert.IsType<OkObjectResult>(result);
                 var books = Assert.IsAssignableFrom<IEnumerable<Book>>(okResult.Value);
-                Assert.True(context.Books.Count() >= 3);
+                Assert.True(books.Count() >= 3);
 
             }
         }
