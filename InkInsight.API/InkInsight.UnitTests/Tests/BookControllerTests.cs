@@ -46,6 +46,7 @@ namespace InkInsight.UnitTests.Tests
                 var okResult = Assert.IsType<OkObjectResult>(result);
                 var books = Assert.IsAssignableFrom<IEnumerable<Book>>(okResult.Value);
                 Assert.True(books.Count() >= 3);
+                ClearDatabase(context);
 
             }
         }
@@ -62,6 +63,8 @@ namespace InkInsight.UnitTests.Tests
 
                 Assert.IsType<CreatedAtActionResult>(result);
                 Assert.True(context.Books.Count() >= 1);
+                ClearDatabase(context);
+
             }
         }
 
@@ -80,6 +83,8 @@ namespace InkInsight.UnitTests.Tests
 
                 Assert.IsType<NoContentResult>(result);
                 Assert.True(newBook.Name == book.Name && newBook.Author == book.Author && newBook.Description == book.Description);
+                ClearDatabase(context);
+
             }
 
         }
@@ -98,6 +103,8 @@ namespace InkInsight.UnitTests.Tests
 
                 Assert.IsType<NoContentResult>(result);
                 Assert.True(newBook == null);
+                ClearDatabase(context);
+
             }
 
         }
@@ -111,6 +118,16 @@ namespace InkInsight.UnitTests.Tests
                 new Book { Id = Guid.Parse("00000000-0000-0000-0000-000000000003"), Name = "Book 3", Author = "Author 3", Description = "Description 3" }
             };
             context.AddRange(books);
+            context.SaveChanges();
+        }
+        private static void ClearDatabase(InkInsightDbContext context)
+        {
+            var reviews = context.Reviews;
+            var books = context.Books;
+            var users = context.Users;
+            context.Reviews.RemoveRange(reviews);
+            context.Books.RemoveRange(books);
+            context.Users.RemoveRange(users);
             context.SaveChanges();
         }
     }

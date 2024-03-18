@@ -54,6 +54,7 @@ namespace InkInsight.UnitTests.Tests
                 var okResult = Assert.IsType<OkObjectResult>(result);
                 var users = Assert.IsAssignableFrom<IEnumerable<User>>(okResult.Value);
                 Assert.True(users.Count() >= 3);
+                ClearDatabase(context);
             }
         }
 
@@ -69,6 +70,7 @@ namespace InkInsight.UnitTests.Tests
 
                 Assert.IsType<CreatedAtActionResult>(result);
                 Assert.True(context.Users.Count() >= 1);
+                ClearDatabase(context);
             }
         }
 
@@ -80,11 +82,14 @@ namespace InkInsight.UnitTests.Tests
                 var controller = new UserController(context, _mapper, _tokenService, _logger);
                 var user = new UserDTO { Name = "User 1", Email = "email1@email.com", Password = "Password 1" };
                 controller.Post(user);
-                var okResult = controller.Login(user.Email, user.Password);
+                OkObjectResult? okResult = controller.Login(user.Email, user.Password) as OkObjectResult;
                
                 Assert.IsType<OkObjectResult>(okResult);
-                //Assert.IsType<string>(token);
-                //Assert.NotNull(token);
+                var token = okResult.Value.ToString();
+                Assert.IsType<string>(token);
+                Assert.NotNull(token);
+                Assert.True(_tokenService.ValidateToken(token));
+                ClearDatabase(context);
             }
         }
 
@@ -97,6 +102,17 @@ namespace InkInsight.UnitTests.Tests
                 new User { Id = Guid.Parse("00000000-0000-0000-0000-000000000003"), Name = "User 3", Email = "email3@email.com", Password = "Password 3" }
             };
             context.AddRange(users);
+            context.SaveChanges();
+        }
+
+        private static void ClearDatabase(InkInsightDbContext context)
+        {
+            var reviews = context.Reviews;
+            var books = context.Books;
+            var users = context.Users;
+            context.Reviews.RemoveRange(reviews);
+            context.Books.RemoveRange(books);
+            context.Users.RemoveRange(users);
             context.SaveChanges();
         }
     }

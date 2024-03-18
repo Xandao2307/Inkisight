@@ -59,11 +59,13 @@ namespace InkInsight.API.Controllers
             try
             {
                 var book = _dbContext.Books.Find(reviewDTO.BookId);
-                if (book == null)
-                    return NotFound("Review not found.");
+                var user = _dbContext.Users.Find(reviewDTO.UserId);
+                if (book == null || user == null)
+                    return BadRequest("Invalid Params");
 
                 var review = _mapper.Map<Review>(reviewDTO);
                 review.Book = book;
+                review.User = user;
                 _dbContext.Reviews.Add(review);
                 _dbContext.SaveChanges();
 
