@@ -18,7 +18,9 @@ Este é um sistema de avaliação e resenha de livros desenvolvido em C# .NET. O
 - Swagger/OpenAPI
 - Serilog
 - MySQL
-
+- XUnit
+- NSubstitute
+  
 ## Como Executar o Projeto
 
 ### Pré-requisitos
